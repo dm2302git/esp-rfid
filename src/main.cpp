@@ -1,4 +1,5 @@
 /*
+teststststss
 MIT License
 
 Copyright (c) 2018 esp-rfid Community
@@ -22,7 +23,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#define VERSION "1.3.3"
+#define VERSION "1.4.0"
 
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
