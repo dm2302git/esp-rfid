@@ -251,9 +251,63 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 
 	else if (strcmp(command, "opendoor") == 0){
 		#ifdef DEBUG
-			Serial.println("[ INFO ] Door open");
+			Serial.println("[ INFO ] Door open command");
 		#endif
-		activateRelay[0] = true;
+
+		// DEFINE statusacctype
+		int statusacctype[MAX_NUM_RELAYS];
+
+		// todo: for Schleife mit "numRelays" im Folgenden
+		statusacctype[0] = root["acctype1"];
+		statusacctype[1] = root["acctype2"];
+		statusacctype[2] = root["acctype3"];
+		statusacctype[3] = root["acctype4"];
+		statusacctype[4] = root["acctype5"];
+		statusacctype[5] = root["acctype6"];
+
+		#ifdef DEBUG
+			Serial.print("[ INFO ] Status acctype1 :");
+			Serial.println(statusacctype[0]);
+
+			Serial.print("[ INFO ] Status acctype2 :");
+			Serial.println(statusacctype[1]);
+
+			Serial.print("[ INFO ] Status acctype3 :");
+			Serial.println(statusacctype[2]);
+
+			Serial.print("[ INFO ] Status acctype4 :");
+			Serial.println(statusacctype[3]);
+
+			Serial.print("[ INFO ] Status acctype5 :");
+			Serial.println(statusacctype[4]);
+
+			Serial.print("[ INFO ] Status acctype6 :");
+			Serial.println(statusacctype[5]);
+		#endif
+	
+		if (statusacctype[0] == ACCESS_GRANTED) {
+			activateRelay[0] = true;
+		}
+
+		if (statusacctype[1] == ACCESS_GRANTED) {
+			activateRelay[1] = true;
+		}
+
+		if (statusacctype[2] == ACCESS_GRANTED) {
+			activateRelay[2] = true;
+		}
+
+		if (statusacctype[3] == ACCESS_GRANTED) {
+			activateRelay[3] = true;
+		}
+
+		if (statusacctype[4] == ACCESS_GRANTED) {
+			activateRelay[4] = true;
+		}
+
+		if (statusacctype[5] == ACCESS_GRANTED) {
+			activateRelay[5] = true;
+		}
 		previousMillis = millis();
 		return;
 	}
