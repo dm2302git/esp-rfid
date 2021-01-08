@@ -143,6 +143,7 @@ bool ICACHE_FLASH_ATTR loadConfiguration()
 		relayPin[i] = relay["rpin"];
 		pinMode(relayPin[i], OUTPUT);
 		digitalWrite(relayPin[i], !relayType[i]);
+		mcp.digitalWrite(8,!relayType[i]);
 	}
 
 #endif

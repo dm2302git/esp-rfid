@@ -8,7 +8,7 @@ var data = [];
 var ajaxobj;
 var isOfficialBoard = false;
 
-var maxNumRelays=4;
+var maxNumRelays=6;
 var numRelays=1;
 
 var theCurrentLogFile ="";
@@ -41,6 +41,7 @@ var config = {
         "ltype": 0,
         "rpin": 4,
         "rtime": 400,
+        "rstatpin": 255,
         "buttonpin": 255
     },
     "general": {
@@ -175,6 +176,7 @@ function listhardware() {
       document.getElementById("lockType"+i).value = config.hardware["relay"+i].ltype;
       document.getElementById("typerly"+i).value = config.hardware["relay"+i].rtype;
       document.getElementById("delay"+i).value = config.hardware["relay"+i].rtime;
+      document.getElementById("statusrlypin"+i).value = config.hardware["relay"+i].rstatpin;
     }  
   }
   handleReader();
@@ -222,6 +224,7 @@ function savehardware() {
   config.hardware.ltype = parseInt(document.getElementById("lockType").value);
   config.hardware.rpin = parseInt(document.getElementById("gpiorly").value);
   config.hardware.rtime = parseInt(document.getElementById("delay").value);
+  config.hardware.rstatpin = parseInt(document.getElementById("statusrlypin").value);
   config.hardware.wifipin = parseInt(document.getElementById("wifipin").value);
   config.hardware.doorstatpin = parseInt(document.getElementById("doorstatpin").value);
   config.hardware.doorbellpin = parseInt(document.getElementById("doorbellpin").value);
@@ -234,6 +237,7 @@ function savehardware() {
     config.hardware["relay"+i].ltype = document.getElementById("lockType"+i).value;
     config.hardware["relay"+i].rtype = document.getElementById("typerly"+i).value;
     config.hardware["relay"+i].rtime = document.getElementById("delay"+i).value;
+    config.hardware["relay"+i].rstatpin = document.getElementById("statusrlypin"+i).value;
   }  
   uncommited();
 }
@@ -1593,6 +1597,7 @@ function updateRelayForm(){
         "ltype": 0,
         "rpin": 4,
         "rtime": 400,
+        "rstatpin": 255,
       };
       config.hardware["relay"+i] = relayJson; 
     }
@@ -1614,6 +1619,7 @@ function updateRelayForm(){
         str=str.replace ("gpiorly","gpiorly" +i);
         str=str.replace ("lockType","lockType" +i);
         str=str.replace ("typerly","typerly" +i);
+        str=str.replace ("statusrlypin","statusrlypin" +i);       
         str=str.replace ("handleLock(1)","handleLock(" +i+")");
         str=str.replace ("testRelay(1)","testRelay(" +i+")");
         str=str.replace ("activateTimeForm","activateTimeForm"+i);

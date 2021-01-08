@@ -9,7 +9,8 @@
   "author": "esp-rfid developers",
   "license": "UNLICENSED",
   "dependencies": {
-    "websocket": "^1.0.28",
-    "ws": "^4.0.0"
+    "websocket": "^1.0.33",
+    "ws": "^4.1.0"
   }
 }
+

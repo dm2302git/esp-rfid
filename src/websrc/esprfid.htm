@@ -239,24 +239,6 @@
         </span>
     </div>
     <div class="row form-group">
-        <label class="col-xs-3">Doorbell<i style="margin-left: 10px;" class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Choose &quot;Doorbell&quot; pin"></i></label>
-        <span class="col-xs-9 col-md-5">
-              <select class="form-control input-sm" id="doorbellpin">
-                <option selected="selected" value="255">None</option>
-                <option value="0">GPIO-0</option>
-                <option value="1">GPIO-1</option>
-                <option value="2">GPIO-2</option>
-                <option value="4">GPIO-4</option>
-                <option value="5">GPIO-5</option>
-                <option value="12">GPIO-12</option>
-                <option value="13">GPIO-13</option>
-                <option value="14">GPIO-14</option>
-                <option value="15">GPIO-15</option>
-                <option value="16">GPIO-16</option>
-              </select>
-        </span>
-    </div>
-    <div class="row form-group">
         <label class="col-xs-3">Open Lock Pin<i style="margin-left: 10px;" class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Choose a pin to have a button with equivalent behaviour to scan a valid card (open/close button)."></i></label>
         <span class="col-xs-9 col-md-5">
             <select class="form-control input-sm" id="openlockpin">
@@ -278,6 +260,8 @@
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
                 </select>
               </span>
         <span class="col-xs-3">
@@ -311,6 +295,14 @@
                     <option value="14">GPIO-14</option>
                     <option value="15">GPIO-15</option>
                     <option value="16">GPIO-16</option>
+                    <option value="108">1-MCP23017-PORTB-08-OUT 1</option>
+                    <option value="109">1-MCP23017-PORTB-09-OUT 2</option>
+                    <option value="110">1-MCP23017-PORTB-10-OUT 3</option>
+                    <option value="111">1-MCP23017-PORTB-11-OUT 4</option>
+                    <option value="112">1-MCP23017-PORTB-12-OUT 5</option>
+                    <option value="113">1-MCP23017-PORTB-13-OUT 6</option>
+                    <option value="114">1-MCP23017-PORTB-14-OUT 7</option>
+                    <option value="115">1-MCP23017-PORTB-15-OUT 8</option>
                 </select>
               </span>
         <span class="col-xs-3">
@@ -332,6 +324,33 @@
             <input class="form-control input-sm" value="300" placeholder="in Microsecond" id="delay" type="text" name="hightime">
         </span>
       </div>
+      <div class="row form-group">
+        <label class="col-xs-3">Relay Pin<i style="margin-left: 10px;" class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Choose which ESP port is for the Relay Door Status feature"></i></label>
+        <span class="col-xs-6 col-md-5">
+                <select class="form-control input-sm" id="statusrlypin">
+                    <option selected="selected" value="255">None</option>
+                    <option value="0">GPIO-0</option>
+                    <option value="1">GPIO-1</option>
+                    <option value="2">GPIO-2</option>
+                    <option value="4">GPIO-4</option>
+                    <option value="5">GPIO-5</option>
+                    <option value="12">GPIO-12</option>
+                    <option value="13">GPIO-13</option>
+                    <option value="14">GPIO-14</option>
+                    <option value="15">GPIO-15</option>
+                    <option value="16">GPIO-16</option>
+                    <option value="100">1-MCP23017-PORTA-00-IN 1</option>
+                    <option value="101">1-MCP23017-PORTA-01-IN 2</option>
+                    <option value="102">1-MCP23017-PORTA-02-IN 3</option>
+                    <option value="103">1-MCP23017-PORTA-03-IN 4</option>
+                    <option value="104">1-MCP23017-PORTA-04-IN 5</option>
+                    <option value="105">1-MCP23017-PORTA-05-IN 6</option>
+                    <option value="106">1-MCP23017-PORTA-06-IN 7</option>
+                    <option value="107">1-MCP23017-PORTA-07-IN 8</option>
+                </select>
+              </span>
+      </div>
+
      </div> 
     </div>
     <div class="row form-group">
