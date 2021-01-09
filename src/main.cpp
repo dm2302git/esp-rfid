@@ -326,17 +326,26 @@ void ICACHE_RAM_ATTR loop()
 		if (activateRelay[currentRelay])
 		{
 			// currently OFF, need to switch ON
-			if (digitalRead(relayPin[currentRelay]) == !relayType[currentRelay])
+			if (digitalRead(relayPin[currentRelay]) == !relayType[currentRelay]) // Todo mit MCP ergänzen für continous
 			{
 #ifdef DEBUG
 				Serial.print("mili : ");
 				Serial.println(millis());
 				Serial.printf("activating relay %d now\n",currentRelay);
+				Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
 #endif
-				digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
-				mcp.digitalWrite(8,relayType[currentRelay]);
-				// if relayPin[currentRelay] >100  IOs von PortExpander MCP23017
-				// relayPin[currentRelay-100]
+				if (relayPin[currentRelay] < MCPPORT_IO)
+				{
+					digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
+				}
+				else
+				{
+					#ifdef DEBUG
+						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+					#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO,relayType[currentRelay]);
+				}
+	
 			}
 			else	// currently ON, need to switch OFF
 			{
@@ -344,9 +353,19 @@ void ICACHE_RAM_ATTR loop()
 				Serial.print("mili : ");
 				Serial.println(millis());
 				Serial.printf("deactivating relay %d now\n",currentRelay);
+				Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
 #endif
-				digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
-				mcp.digitalWrite(8,!relayType[currentRelay]);
+					if (relayPin[currentRelay] < MCPPORT_IO)
+				{
+					digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
+				}
+				else
+				{
+					#ifdef DEBUG
+						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+					#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
+				}
 			}
 			activateRelay[currentRelay] = false;
 		}
@@ -359,9 +378,19 @@ void ICACHE_RAM_ATTR loop()
 			Serial.print("mili : ");
 			Serial.println(millis());
 			Serial.printf("activating relay %d now\n",currentRelay);
+			Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
 #endif
-			digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
-			mcp.digitalWrite(8,relayType[currentRelay]);
+			if (relayPin[currentRelay] < MCPPORT_IO)
+			{
+				digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
+			}
+			else
+			{
+				#ifdef DEBUG
+					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+				#endif	
+				mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, relayType[currentRelay]);
+			}
 			previousMillis = millis();
 			activateRelay[currentRelay] = false;
 			deactivateRelay[currentRelay] = true;
@@ -377,8 +406,17 @@ void ICACHE_RAM_ATTR loop()
 			Serial.print("mili : ");
 			Serial.println(millis());
 #endif
-			digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
-			mcp.digitalWrite(8,!relayType[currentRelay]);
+				if (relayPin[currentRelay] < MCPPORT_IO)
+				{
+					digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
+				}
+				else
+				{
+					#ifdef DEBUG
+						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+					#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
+				}
 			deactivateRelay[currentRelay] = false;
 		}
 	  }
