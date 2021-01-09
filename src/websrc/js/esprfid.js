@@ -164,6 +164,7 @@ function listhardware() {
     document.getElementById("gpioss").value = config.hardware.sspin;
     document.getElementById("gain").value = config.hardware.rfidgain;
     document.getElementById("gpiorly").value = config.hardware.rpin;
+    document.getElementById("statusrlypin").value = config.hardware.rstatpin;
     document.getElementById("numrlys").value = numRelays;
     updateRelayForm();
     updateUserModalForm();
