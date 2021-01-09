@@ -333,6 +333,7 @@
             <select class="form-control input-sm" id="lockType" onchange="handleLock(1);">
                 <option selected="selected" value="0">Momentary</option>
                 <option value="1">Continuous</option>
+                <option value="2">DoorStatus</option>
             </select>
         </span>
       </div>
@@ -906,8 +907,14 @@
                             <input type="text" class="form-control" id="username" name="username" placeholder="User Name or Label" required>
                         </div>
                     </div>
+                    <div class="form-group required">
+                        <label for="validuntil" class="col-sm-3 control-label">Valid Until</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" id="validuntil" name="validuntil" value="2038-01-01" placeholder="Valid Until" required>
+                        </div>
+                    </div>
                     <div id=useracctype class="form-group required">
-                        <label for="acctype" class="col-sm-3 control-label">Access Type</label>
+                        <label for="acctype" class="col-sm-3 control-label">Access Relay 1</label>
                         <div class="col-sm-9">
                             <select class="form-control" id="acctype" required>
                                 <option selected="selected" value="1">Always</option>
@@ -919,6 +926,7 @@
                                 <option value="6">On Weekdays</option>
                                 -->
                                 <option value="0">Disabled</option>
+                                <option value="5">Keylocker</option>
                                 <option value="99">Admin</option>
                             </select>
                         </div>
@@ -932,12 +940,7 @@
                         </div>
                     </div>
                     -->
-                    <div class="form-group required">
-                        <label for="validuntil" class="col-sm-3 control-label">Valid Until</label>
-                        <div class="col-sm-9">
-                            <input type="date" class="form-control" id="validuntil" name="validuntil" value="2038-01-01" placeholder="Valid Until" required>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Save changes</button>
