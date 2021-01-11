@@ -138,7 +138,7 @@ function handleLock(xnum) {
   } else if (lType === 1) {
     document.getElementById("activateTimeForm"+xstr).style.display = "none";
   } else if (lType === 2) {
-    document.getElementById("activateTimeForm"+xstr).style.display = "block";
+    document.getElementById("activateTimeForm"+xstr).style.display = "none";
   }
 }
 
