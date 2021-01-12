@@ -131,6 +131,8 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
  		stopic = stopic + "/accesslist";
 	else if (todo == 1) // Just for List
 		stopic = stopic + "/send";
+	else if (todo == 2) // Just for List
+		stopic = stopic + "/userlist";
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject &root = jsonBuffer.createObject();
 	JsonArray &users = root.createNestedArray("list");
@@ -138,7 +140,14 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 	#ifdef DEBUG
 		Serial.println("[ INFO ] getUserList");
 	#endif
+
+	int page = 1;
+	int count = 20;
+	int first = (page - 1) * count;
+	int last = page * count;
+	int i = 0;
 	while (dir.next()) {
+		if (i >= first && i < last) {
 			JsonObject &item = users.createNestedObject();
 			String uid = dir.fileName();
 			uid.remove(0, 3);
@@ -155,6 +164,7 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 					String mqttBuffer;					
 					json.printTo(mqttBuffer);
 					mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str());
+					//mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.substring(0,mqttBuffer.length() -80).c_str());
 					#ifdef DEBUG
 						Serial.print("[ INFO ] Mqtt Publish:");
 						Serial.println( mqttBuffer.substring(40,mqttBuffer.length() -24));
@@ -162,7 +172,8 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 					#endif
 				}
 			}
-
+		}
+		i++;
 	}
 }
 
