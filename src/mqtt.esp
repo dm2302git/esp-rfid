@@ -152,15 +152,17 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 			if (json.success()) {
 
 				if (mqttClient.connected()) {
-					String mqttBuffer;
+					String mqttBuffer;					
 					json.printTo(mqttBuffer);
 					mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str());
 					#ifdef DEBUG
 						Serial.print("[ INFO ] Mqtt Publish:");
-						Serial.println(mqttBuffer);
+						Serial.println( mqttBuffer.substring(40,mqttBuffer.length() -24));
+					//	Serial.println(mqttBuffer);  // Ausgabe deaktiviert da sonst Absturz bei zu vielen usern
 					#endif
 				}
 			}
+
 	}
 }
 
