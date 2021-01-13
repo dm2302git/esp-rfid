@@ -72,6 +72,14 @@ void mqtt_publish_heartbeat(time_t heartbeat) {
 	root["time"] 		 = heartbeat;
     root["ip"]   	 = WiFi.localIP().toString();
 	root["door"] 		 = deviceHostname;
+	
+	// Publish Wifi Strength with hearthbeat + ToDo split in function
+	int dBm = WiFi.RSSI();
+	int percentage;
+	if (dBm <= -100) percentage = 0;
+	else if (dBm >= -50) percentage = 100;
+	else percentage = 2 * (dBm + 100);
+   	root["WIFIstrength%"] = percentage;
 
 	String mqttBuffer4;
 	root.printTo(mqttBuffer4);
@@ -222,6 +230,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 
 	// Check if IP was send with command because we only
 	// accept commands for this where sent IP is equal to device IP
+	// ToDo: Also accept only if device name is equal
 	if (root.containsKey("doorip")){
 		const char *ipadr = root["doorip"];
 
@@ -341,7 +350,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	else if (strcmp(command, "adduser") == 0){
 
 		#ifdef DEBUG
-			Serial.print("[ INFO ] Add Users :");
+			Serial.print("[ INFO ] Add User: ");
 			const char *name = root["user"];
 			Serial.println(name);
 		#endif
@@ -357,6 +366,11 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 		f.close();
 		return;
 	}
+
+	#ifdef DEBUG
+		Serial.println("[ INFO ] No such command!");
+	#endif	
+
 	return;
 }
 
