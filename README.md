@@ -1,5 +1,9 @@
 # New feature in special Release 1.4.0
 * WIFIstrength in 0 - 100% on mqtt heartbeat Publish
+* Support of up to 6 relays
+* Support of MCP23017 IC for more IO's ( 8xInput and 8x Output)
+* Every Relay has a DoorStatus conected. Parameter Active Low/ Active High
+* LockType for DoorStatus = Set on command and Reset on Status change from DoorStatus pin after Delay 
 
 
 # Announcement
