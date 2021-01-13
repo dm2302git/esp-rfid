@@ -1,3 +1,7 @@
+# New feature in special Release 1.4.0
+* WIFIstrength in 0 - 100% on mqtt heartbeat Publish
+
+
 # Announcement
 
 We are rising funds for next version (2.0) of ESP-RFID.
