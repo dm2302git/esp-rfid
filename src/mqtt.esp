@@ -124,15 +124,13 @@ void onMqttPublish(uint16_t packetId) {
 	writeEvent("INFO", "mqtt", "MQTT publish acknowledged", String(packetId));
 }
 
-
+/*
 void ICACHE_FLASH_ATTR getUserList(int todo) {
 	String stopic (mqttTopic);
 	if (todo == 0)  // Userlist to add to DB
  		stopic = stopic + "/accesslist";
 	else if (todo == 1) // Just for List
 		stopic = stopic + "/send";
-	else if (todo == 2) // Just for List
-		stopic = stopic + "/userlist";
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject &root = jsonBuffer.createObject();
 	JsonArray &users = root.createNestedArray("list");
@@ -140,14 +138,12 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 	#ifdef DEBUG
 		Serial.println("[ INFO ] getUserList");
 	#endif
-
-	int page = 1;
-	int count = 20;
-	int first = (page - 1) * count;
-	int last = page * count;
 	int i = 0;
 	while (dir.next()) {
-		if (i >= first && i < last) {
+			#ifdef DEBUG
+				Serial.print("[ INFO ] Client Nr:");
+				Serial.println(i);
+			#endif
 			JsonObject &item = users.createNestedObject();
 			String uid = dir.fileName();
 			uid.remove(0, 3);
@@ -161,19 +157,96 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 			if (json.success()) {
 
 				if (mqttClient.connected()) {
-					String mqttBuffer;					
+					String mqttBuffer;
 					json.printTo(mqttBuffer);
-					mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str());
-					//mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.substring(0,mqttBuffer.length() -80).c_str());
+					
+					int publishStatus=publishStatus=mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); // returns 0 on failure;
+
+					if(publishStatus==0){ // if publish failed start retry logic
+						unsigned long lastTryTime=millis();
+						int retries=0;
+						while(true){
+							//delay(1200);
+							if(millis()-lastTryTime > 1200){ // do another try after 1200ms passed
+								publishStatus=publishStatus=mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); // returns 0 on failure;
+								if(publishStatus>0){ 
+									break;
+								}
+								retries++;
+								#ifdef DEBUG
+									Serial.print("[ INFO ] retry:");
+									Serial.println(retries);
+								#endif
+								if(retries>6){ // can move the conditions into the while if is only for logging
+									Serial.println("could not send part of user list. Retried 6 times without success");
+									break;
+								}
+								lastTryTime=millis(); // after the next try update lastTryTime
+							}
+							
+							// here good be a good spot for adding a delay
+						}
+					}
+					
 					#ifdef DEBUG
 						Serial.print("[ INFO ] Mqtt Publish:");
-						Serial.println( mqttBuffer.substring(40,mqttBuffer.length() -24));
-					//	Serial.println(mqttBuffer);  // Ausgabe deaktiviert da sonst Absturz bei zu vielen usern
+						//Serial.println(mqttBuffer);
+						Serial.println("");
 					#endif
 				}
 			}
+			i++;
+	}
+}
+*/
+void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int take=0) {
+	String stopic (mqttTopic);
+	if (todo == 0)  // Userlist to add to DB
+ 		stopic = stopic + "/accesslist";
+	else if (todo == 1) // Just for List
+		stopic = stopic + "/send";
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &root = jsonBuffer.createObject();
+	JsonArray &users = root.createNestedArray("list");
+	Dir dir = SPIFFS.openDir("/P/");
+	#ifdef DEBUG
+		Serial.println("[ INFO ] getUserList");
+	#endif
+
+	unsigned int i = 0;
+	unsigned int lastIndex;
+	if (take > 0 ) 
+		lastIndex = skip + take;
+	else	
+		lastIndex = MAX_USERS;
+		
+	while (dir.next() && i <= lastIndex) {
+		if(i > skip){
+			JsonObject &item = users.createNestedObject();
+				String uid = dir.fileName();
+				uid.remove(0, 3);
+				item["uid"] = uid;
+				File f = SPIFFS.open(dir.fileName(), "r");
+				size_t size = f.size();
+				std::unique_ptr<char[]> buf(new char[size]);
+				f.readBytes(buf.get(), size);
+				DynamicJsonBuffer jsonBuffer2;
+				JsonObject &json = jsonBuffer2.parseObject(buf.get());
+				if (json.success()) {
+					if (mqttClient.connected()) {
+						String mqttBuffer;
+						json.printTo(mqttBuffer);
+						
+						mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); // returns 0 on failure;
+						
+						#ifdef DEBUG
+							Serial.print("[ INFO ] Mqtt Publish:");
+							Serial.println(mqttBuffer);
+						#endif
+					}
+				}
 		}
-		i++;
+		i++;			
 	}
 }
 
@@ -255,10 +328,23 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	}
 
 	else if (strcmp(command, "listusr") == 0){
+		unsigned int cmdskip = 0;
+		unsigned int cmdtake = 0;
+		if (root.containsKey("skip"))	cmdskip = root["skip"];
+		else	cmdskip = 0;
+		
+		if (root.containsKey("take"))	cmdtake = root["take"];
+		else	cmdtake = 0;
+
 		#ifdef DEBUG
-			Serial.println("[ INFO ] List users");
-		#endif
-		getUserList(1);
+			Serial.print("[ INFO ] List users");
+			Serial.print(" | skip: ");
+			Serial.print(cmdskip);
+			Serial.print(" | take: ");
+			Serial.println(cmdtake);
+		#endif	
+
+		getUserList(1, cmdskip, cmdtake);
 		return;
 	}
 
@@ -297,30 +383,14 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 			Serial.print("[ INFO ] Status acctype6 :");
 			Serial.println(statusacctype[5]);
 		#endif
-	
-		if (statusacctype[0] == ACCESS_GRANTED) {
-			activateRelay[0] = true;
-		}
 
-		if (statusacctype[1] == ACCESS_GRANTED) {
-			activateRelay[1] = true;
+		for (size_t i = 0; i < MAX_NUM_RELAYS; i++)
+		{
+			if (statusacctype[i] == ACCESS_GRANTED) {
+				activateRelay[i] = true;
+			}
 		}
-
-		if (statusacctype[2] == ACCESS_GRANTED) {
-			activateRelay[2] = true;
-		}
-
-		if (statusacctype[3] == ACCESS_GRANTED) {
-			activateRelay[3] = true;
-		}
-
-		if (statusacctype[4] == ACCESS_GRANTED) {
-			activateRelay[4] = true;
-		}
-
-		if (statusacctype[5] == ACCESS_GRANTED) {
-			activateRelay[5] = true;
-		}
+		
 		previousMillis = millis();
 		return;
 	}

@@ -38,3 +38,4 @@
 #define LOCKTYPE_DOORSTATUS 2
 
 #define MCPPORT_IO 100
+#define MAX_USERS 1000
