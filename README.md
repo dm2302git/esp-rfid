@@ -9,6 +9,8 @@
 * mqtt "listusr" with count of returns
   ```{"cmd":"listusr","doorip":"192.168.0.1","skip": "0", "take": "6"}```
 
+### MQTT Documentation
+You can integrate ESP-RFID with other systems using MQTT. Read the [additional documentation](./README-ADDON.md) for all the details.
 
 # Announcement
 
