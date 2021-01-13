@@ -5,7 +5,9 @@
 * Every Relay has a DoorStatus conected. Parameter Active Low/ Active High
 * LockType for DoorStatus = Set on command and Reset on Status change from DoorStatus pin after Delay 
 * mqtt "OpenDoor" for up to 6 Relays acctypes 
-  #{"cmd":"opendoor","doorip":"192.168.0.1","acctype":1,"acctype1":1,"acctype2":0,"acctype3":0,"acctype4":0}
+  ```{"cmd":"opendoor","doorip":"192.168.0.1","acctype":1,"acctype1":1,"acctype2":0,"acctype3":0,"acctype4":0}```
+* mqtt "listusr" with count of returns
+  ```{"cmd":"listusr","doorip":"192.168.0.1","skip": "0", "take": "6"}```
 
 
 # Announcement
