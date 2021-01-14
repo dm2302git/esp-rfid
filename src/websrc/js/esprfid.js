@@ -8,7 +8,7 @@ var data = [];
 var ajaxobj;
 var isOfficialBoard = false;
 
-var maxNumRelays=4;
+var maxNumRelays=6;
 var numRelays=1;
 
 var theCurrentLogFile ="";
@@ -41,6 +41,7 @@ var config = {
         "ltype": 0,
         "rpin": 4,
         "rtime": 400,
+        "rstatpin": 255,
         "buttonpin": 255
     },
     "general": {
@@ -136,6 +137,8 @@ function handleLock(xnum) {
     document.getElementById("activateTimeForm"+xstr).style.display = "block";
   } else if (lType === 1) {
     document.getElementById("activateTimeForm"+xstr).style.display = "none";
+  } else if (lType === 2) {
+    document.getElementById("activateTimeForm"+xstr).style.display = "none";
   }
 }
 
@@ -163,6 +166,7 @@ function listhardware() {
     document.getElementById("gpioss").value = config.hardware.sspin;
     document.getElementById("gain").value = config.hardware.rfidgain;
     document.getElementById("gpiorly").value = config.hardware.rpin;
+    document.getElementById("statusrlypin").value = config.hardware.rstatpin;
     document.getElementById("numrlys").value = numRelays;
     updateRelayForm();
     updateUserModalForm();
@@ -175,6 +179,7 @@ function listhardware() {
       document.getElementById("lockType"+i).value = config.hardware["relay"+i].ltype;
       document.getElementById("typerly"+i).value = config.hardware["relay"+i].rtype;
       document.getElementById("delay"+i).value = config.hardware["relay"+i].rtime;
+      document.getElementById("statusrlypin"+i).value = config.hardware["relay"+i].rstatpin;
     }  
   }
   handleReader();
@@ -222,6 +227,7 @@ function savehardware() {
   config.hardware.ltype = parseInt(document.getElementById("lockType").value);
   config.hardware.rpin = parseInt(document.getElementById("gpiorly").value);
   config.hardware.rtime = parseInt(document.getElementById("delay").value);
+  config.hardware.rstatpin = parseInt(document.getElementById("statusrlypin").value);
   config.hardware.wifipin = parseInt(document.getElementById("wifipin").value);
   config.hardware.doorstatpin = parseInt(document.getElementById("doorstatpin").value);
   config.hardware.doorbellpin = parseInt(document.getElementById("doorbellpin").value);
@@ -234,6 +240,7 @@ function savehardware() {
     config.hardware["relay"+i].ltype = document.getElementById("lockType"+i).value;
     config.hardware["relay"+i].rtype = document.getElementById("typerly"+i).value;
     config.hardware["relay"+i].rtime = document.getElementById("delay"+i).value;
+    config.hardware["relay"+i].rstatpin = document.getElementById("statusrlypin"+i).value;
   }  
   uncommited();
 }
@@ -1141,6 +1148,8 @@ function initLatestLogTable() {
               return "Unknown";
             } else if (value === 2) {
               return "Expired";
+            } else if (value === 5) {
+              return "Keylocker";
             }
           }
         }
@@ -1178,6 +1187,8 @@ function initUserTable() {
                 return "Admin";
               } else if (value === 0) {
                 return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
               }
               return value;
             },
@@ -1194,6 +1205,8 @@ function initUserTable() {
                 return "Admin";
               } else if (value === 0) {
                 return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
               }
               return value;
             },
@@ -1210,6 +1223,8 @@ function initUserTable() {
                 return "Admin";
               } else if (value === 0) {
                 return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
               }
               return value;
             },
@@ -1226,6 +1241,44 @@ function initUserTable() {
                 return "Admin";
               } else if (value === 0) {
                 return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
+              }
+              return value;
+            },
+          },
+          {
+            "name": "acctype5",
+            "title": "Access Rl5",
+            "breakpoints": "xs",
+            "visible": false,
+            "parser": function(value) {
+              if (value === 1) {
+                return "Always";
+              } else if (value === 99) {
+                return "Admin";
+              } else if (value === 0) {
+                return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
+              }
+              return value;
+            },
+          },
+          {
+            "name": "acctype6",
+            "title": "Access Rl6",
+            "breakpoints": "xs",
+            "visible": false,
+            "parser": function(value) {
+              if (value === 1) {
+                return "Always";
+              } else if (value === 99) {
+                return "Admin";
+              } else if (value === 0) {
+                return "Disabled";
+              } else if (value === 5) {
+                return "Keylocker";
               }
               return value;
             },
@@ -1264,9 +1317,12 @@ function initUserTable() {
               if (xnum===2) xval = values.acctype2;
               if (xnum===3) xval = values.acctype3;
               if (xnum===4) xval = values.acctype4;
+              if (xnum===5) xval = values.acctype5;
+              if (xnum===6) xval = values.acctype6;
               if (xval === "Always")  return 1;
               if (xval === "Admin")  return 99;
               if (xval === "Disabled") return 0;
+              if (xval === "Keylocker") return 5;
             }
             $editor.find("#uid").val(values.uid);
             $editor.find("#username").val(values.username);
@@ -1274,6 +1330,8 @@ function initUserTable() {
             $editor.find("#acctype2").val(giveAccType(2));
             $editor.find("#acctype3").val(giveAccType(3));
             $editor.find("#acctype4").val(giveAccType(4));
+            $editor.find("#acctype5").val(giveAccType(5));
+            $editor.find("#acctype6").val(giveAccType(6));
             $editor.find("#validuntil").val(values.validuntil);
             $modal.data("row", row);
             $editorTitle.text("Edit User # " + values.username);
@@ -1307,6 +1365,8 @@ function initUserTable() {
           acctype2: parseInt($editor.find("#acctype2").val()),
           acctype3: parseInt($editor.find("#acctype3").val()),
           acctype4: parseInt($editor.find("#acctype4").val()),
+          acctype5: parseInt($editor.find("#acctype5").val()),
+          acctype6: parseInt($editor.find("#acctype6").val()),
           validuntil: (new Date($editor.find("#validuntil").val()).getTime() / 1000)
         };
       if (row instanceof window.FooTable.Row) {
@@ -1325,6 +1385,8 @@ function initUserTable() {
       datatosend.acctype2 = parseInt($editor.find("#acctype2").val());
       datatosend.acctype3 = parseInt($editor.find("#acctype3").val());
       datatosend.acctype4 = parseInt($editor.find("#acctype4").val());
+      datatosend.acctype5 = parseInt($editor.find("#acctype5").val());
+      datatosend.acctype6 = parseInt($editor.find("#acctype6").val());
       var validuntil = $editor.find("#validuntil").val();
       var vuepoch = (new Date(validuntil).getTime() / 1000);
       datatosend.validuntil = vuepoch;
@@ -1593,6 +1655,7 @@ function updateRelayForm(){
         "ltype": 0,
         "rpin": 4,
         "rtime": 400,
+        "rstatpin": 255,
       };
       config.hardware["relay"+i] = relayJson; 
     }
@@ -1614,6 +1677,7 @@ function updateRelayForm(){
         str=str.replace ("gpiorly","gpiorly" +i);
         str=str.replace ("lockType","lockType" +i);
         str=str.replace ("typerly","typerly" +i);
+        str=str.replace ("statusrlypin","statusrlypin" +i);       
         str=str.replace ("handleLock(1)","handleLock(" +i+")");
         str=str.replace ("testRelay(1)","testRelay(" +i+")");
         str=str.replace ("activateTimeForm","activateTimeForm"+i);
@@ -1648,7 +1712,7 @@ function updateUserModalForm(){
 
         var str = cloneObj.innerHTML;
         str=str.replace(/acctype/g,"acctype"+i);
-        str=str.replace("Access Type","Access Relay "+i);
+        str=str.replace("Access Relay 1","Access Relay "+i);
         cloneObj.innerHTML=str;
         accParent[0].appendChild(cloneObj);
       }
@@ -1747,9 +1811,9 @@ $(".noimp").on("click", function() {
 window.FooTable.MyFiltering = window.FooTable.Filtering.extend({
   construct: function(instance) {
     this._super(instance);
-    this.acctypes = ["1", "99", "0"];
-    this.acctypesstr = ["Always", "Admin", "Disabled"];
-    this.def = "Access Type";
+    this.acctypes = ["1", "99", "0", "5"];
+    this.acctypesstr = ["Always", "Admin", "Disabled","Keylocker"];
+    this.def = "Access Relay 1";
     this.$acctype = null;
   },
   $create: function() {

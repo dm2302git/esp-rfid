@@ -72,6 +72,14 @@ void mqtt_publish_heartbeat(time_t heartbeat) {
 	root["time"] 		 = heartbeat;
     root["ip"]   	 = WiFi.localIP().toString();
 	root["door"] 		 = deviceHostname;
+	
+	// Publish Wifi Strength with hearthbeat + ToDo split in function
+	int dBm = WiFi.RSSI();
+	int percentage;
+	if (dBm <= -100) percentage = 0;
+	else if (dBm >= -50) percentage = 100;
+	else percentage = 2 * (dBm + 100);
+   	root["WIFIstrength%"] = percentage;
 
 	String mqttBuffer4;
 	root.printTo(mqttBuffer4);
@@ -124,6 +132,7 @@ void onMqttPublish(uint16_t packetId) {
 	writeEvent("INFO", "mqtt", "MQTT publish acknowledged", String(packetId));
 }
 
+
 uint16_t sendNextUserFile(Dir &dir, String &stopic){
 	String uid = dir.fileName();
 	uid.remove(0, 3);
@@ -161,14 +170,14 @@ void ICACHE_FLASH_ATTR getUserList(int todo) {
 	Dir dir = SPIFFS.openDir("/P/");
 	#ifdef DEBUG
 		Serial.println("[ INFO ] getUserList");
-	#endif
-	
+	#endif	
 	/* uint32_t loopCount=0; */
 
 	while (dir.next()) {
 		sendNextUserFile(dir, stopic);
 		/* loopCount++;
 		Serial.println(loopCount); */
+
 	}
 }
 
@@ -223,6 +232,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 
 	// Check if IP was send with command because we only
 	// accept commands for this where sent IP is equal to device IP
+	// ToDo: Also accept only if device name is equal
 	if (root.containsKey("doorip")){
 		const char *ipadr = root["doorip"];
 
@@ -254,18 +264,69 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	}
 
 	else if (strcmp(command, "listusr") == 0){
+		unsigned int cmdskip = 0;
+		unsigned int cmdtake = 0;
+		if (root.containsKey("skip"))	cmdskip = root["skip"];
+		else	cmdskip = 0;
+		
+		if (root.containsKey("take"))	cmdtake = root["take"];
+		else	cmdtake = 0;
+
 		#ifdef DEBUG
-			Serial.println("[ INFO ] List users");
-		#endif
-		getUserList(1);
+			Serial.print("[ INFO ] List users");
+			Serial.print(" | skip: ");
+			Serial.print(cmdskip);
+			Serial.print(" | take: ");
+			Serial.println(cmdtake);
+		#endif	
+
+		getUserList(1, cmdskip, cmdtake);
 		return;
 	}
 
 	else if (strcmp(command, "opendoor") == 0){
 		#ifdef DEBUG
-			Serial.println("[ INFO ] Door open");
+			Serial.println("[ INFO ] Door open command");
 		#endif
-		activateRelay[0] = true;
+
+		// DEFINE statusacctype
+		int statusacctype[MAX_NUM_RELAYS];
+
+		// todo: for Schleife mit "numRelays" im Folgenden
+		statusacctype[0] = root["acctype1"];
+		statusacctype[1] = root["acctype2"];
+		statusacctype[2] = root["acctype3"];
+		statusacctype[3] = root["acctype4"];
+		statusacctype[4] = root["acctype5"];
+		statusacctype[5] = root["acctype6"];
+
+		#ifdef DEBUG
+			Serial.print("[ INFO ] Status acctype1 :");
+			Serial.println(statusacctype[0]);
+
+			Serial.print("[ INFO ] Status acctype2 :");
+			Serial.println(statusacctype[1]);
+
+			Serial.print("[ INFO ] Status acctype3 :");
+			Serial.println(statusacctype[2]);
+
+			Serial.print("[ INFO ] Status acctype4 :");
+			Serial.println(statusacctype[3]);
+
+			Serial.print("[ INFO ] Status acctype5 :");
+			Serial.println(statusacctype[4]);
+
+			Serial.print("[ INFO ] Status acctype6 :");
+			Serial.println(statusacctype[5]);
+		#endif
+
+		for (size_t i = 0; i < MAX_NUM_RELAYS; i++)
+		{
+			if (statusacctype[i] == ACCESS_GRANTED) {
+				activateRelay[i] = true;
+			}
+		}
+		
 		previousMillis = millis();
 		return;
 	}
@@ -291,7 +352,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	else if (strcmp(command, "adduser") == 0){
 
 		#ifdef DEBUG
-			Serial.print("[ INFO ] Add Users :");
+			Serial.print("[ INFO ] Add User: ");
 			const char *name = root["user"];
 			Serial.println(name);
 		#endif
@@ -307,6 +368,11 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 		f.close();
 		return;
 	}
+
+	#ifdef DEBUG
+		Serial.println("[ INFO ] No such command!");
+	#endif	
+
 	return;
 }
 

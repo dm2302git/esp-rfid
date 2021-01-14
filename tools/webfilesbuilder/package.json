@@ -5,17 +5,21 @@
   "main": "unglify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "gulp"
+    "start": "gulp",
+    "preinstall": "npx npm-force-resolutions"
+  },
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
   },
   "author": "ESP-RFID Developers",
   "license": "UNLICENSED",
   "dependencies": {
-    "gulp": "^4.0.2",
+    "gulp": "^3.9.1",
     "gulp-flatmap": "^1.0.2",
     "gulp-gzip": "^1.4.2",
     "gulp-htmlmin": "^4.0.0",
-    "gulp-uglify": "^3.0.1",
-    "npm": "^6.7.0",
+    "gulp-uglify": "^3.0.2",
+    "npm": "^6.14.10",
     "pump": "^3.0.0"
   },
   "bin": "node_modules\\gulp\\bin\\gulp.js",

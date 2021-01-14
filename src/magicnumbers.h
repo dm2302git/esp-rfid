@@ -30,8 +30,12 @@
 #ifdef OFFICIALBOARD
     #define MAX_NUM_RELAYS 1
 #else
-    #define MAX_NUM_RELAYS 4
+    #define MAX_NUM_RELAYS 6
 #endif
 
 #define LOCKTYPE_MOMENTARY 0
 #define LOCKTYPE_CONTINUOUS 1
+#define LOCKTYPE_DOORSTATUS 2
+
+#define MCPPORT_IO 100
+#define MAX_USERS 1000
