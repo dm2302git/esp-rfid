@@ -25,3 +25,78 @@ void doorStatus(/* arguments */) {
   }
 
 }
+
+
+// door status for up to 6 doors
+void doorStatusNew(/* arguments */) {
+
+      for (size_t i = 0; i < numRelays; i++)
+      {
+            if (doorstatusPinNew[i] < MCPPORT_IO)
+            {
+                  if ((digitalRead(doorstatusPinNew[i]) == HIGH) && (lastDoorStatusNew[i] == 0))
+                  {
+                        String door = String(i+1);
+                        writeEvent("INFO", "door", "Door Closed", door);
+                  #ifdef DEBUG
+                        Serial.print("[ INFO ] Door is Closed:");
+                        Serial.println(door);
+                  #endif
+                  lastDoorStatusNew[i] = 1;   
+                  }
+
+                  if ((digitalRead(doorstatusPinNew[i]) == LOW) && (lastDoorStatusNew[i] == 1))
+                  {
+                        String door = String(i+1);
+                        writeEvent("INFO", "door", "Door Open:", door);
+                  #ifdef DEBUG
+                        Serial.print("[ INFO ] Door is Open:");
+                        Serial.println(door);
+                  #endif
+                  lastDoorStatusNew[i] = 0;   
+                  }
+            }
+            else
+            {	
+                  String door = String(i+1);
+                  String src = "acctype" + door;
+
+                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == LOW) && (lastDoorStatusNew[i] == 1 || doorStatusFirstRun[i] == 0))
+                  {
+                        #ifdef DEBUG
+                          //    Serial.printf("MCP23017 PORT: %d \n",doorstatusPinNew[i]-MCPPORT_IO);
+                        #endif
+
+
+                        writeEvent("INFO", src, "Door Closed", "closed");
+                        
+                         #ifdef DEBUG
+                              Serial.print("[ INFO ] Door is Closed:");
+                              Serial.println(door);
+                        #endif
+
+                        lastDoorStatusNew[i] = 0;  
+                        doorStatusFirstRun[i] = 1; 
+                  }
+
+                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == HIGH) && (lastDoorStatusNew[i] == 0 || doorStatusFirstRun[i] == 0))
+                  {
+                        #ifdef DEBUG
+                          //    Serial.printf("MCP23017 PORT: %d \n",doorstatusPinNew[i]-MCPPORT_IO);
+                        #endif
+
+                        writeEvent("INFO", src, "Door Open:", "opened");
+
+                        #ifdef DEBUG
+                              Serial.print("[ INFO ] Door is Open:");
+                              Serial.println(door);
+                        #endif
+
+                        lastDoorStatusNew[i] = 1; 
+                        doorStatusFirstRun[i] = 1;   
+                  }
+                  
+            }
+            
+      }
+}

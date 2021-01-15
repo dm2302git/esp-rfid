@@ -121,6 +121,7 @@ uint8_t lastDoorState = 0;
 // door stat specific variable for 6 doors
 uint8_t doorstatusPinNew[MAX_NUM_RELAYS]= {255,255,255,255,255,255};
 uint8_t lastDoorStatusNew[MAX_NUM_RELAYS]= {0,0,0,0,0,0};
+uint8_t doorStatusFirstRun[MAX_NUM_RELAYS] = {0,0,0,0,0,0};
 
 uint8_t openlockpin = 255;
 
@@ -301,11 +302,17 @@ void ICACHE_RAM_ATTR loop()
 		}
 	}
 
-	if (doorstatusPinNew[1] != 255)
+	if (doorstatusPinNew[0] != 255)
+	{
+		doorStatusNew();
+		delayMicroseconds(500);
+	}
+	else if (doorstatpin != 255)
 	{
 		doorStatus();
 		delayMicroseconds(500);
 	}
+	
 
 	if (doorbellpin != 255)
 	{
@@ -328,7 +335,7 @@ void ICACHE_RAM_ATTR loop()
 			// currently OFF, need to switch ON
 			if (digitalRead(relayPin[currentRelay]) == !relayType[currentRelay]) // Todo mit MCP ergänzen für continous
 			{
-#ifdef DEBUG
+	#ifdef DEBUG
 				Serial.print("mili : ");
 				Serial.println(millis());
 				Serial.printf("activating relay %d now\n",currentRelay);

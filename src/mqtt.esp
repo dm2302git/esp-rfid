@@ -148,12 +148,15 @@ uint16_t sendNextUserFile(Dir &dir, String &stopic){
 		if (mqttClient.connected()) {
 			String mqttBuffer;
 			json.printTo(mqttBuffer);
-			/* Serial.println(mqttBuffer);
+			uint16_t success = 0;
+			success = mqttClient.publish(stopic.c_str(), 1, true, mqttBuffer.c_str());
 
-			uint16_t success=mqttClient.publish(stopic.c_str(), 1, true, mqttBuffer.c_str());
-			Serial.println(success); */
-
-			mqttClient.publish(stopic.c_str(), 1, true, mqttBuffer.c_str());
+		#ifdef DEBUG
+			Serial.print("[ INFO ] Mqtt Publish:");
+		//	Serial.println(mqttBuffer);
+			Serial.print("  Success: "); 
+			Serial.println(success); 
+		#endif
 		}
 	}
 }
@@ -280,7 +283,8 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 			Serial.println(cmdtake);
 		#endif	
 
-		getUserList(1, cmdskip, cmdtake);
+		//getUserList(1, cmdskip, cmdtake);
+		getUserList(1);
 		return;
 	}
 
