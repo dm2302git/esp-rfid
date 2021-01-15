@@ -8,7 +8,7 @@
   ```{"cmd":"opendoor","doorip":"192.168.0.1","acctype":1,"acctype1":1,"acctype2":0,"acctype3":0,"acctype4":0}```
 * mqtt "listusr" with count of returns
   ```{"cmd":"listusr","doorip":"192.168.0.1","skip": "0", "take": "6"}```
-* mqtt "info" doorstatus
+* mqtt "info" Door "4" is Closed
    ```{ "type":"INFO",
       "src":"acctype4",
       "desc":"Door Closed",
@@ -17,7 +17,8 @@
       "cmd":"event",
       "door":"esp-rfid"}```
       
- ```{ "type":"INFO",
+* mqtt "info" Door "4" is Opened      
+   ```{ "type":"INFO",
       "src":"acctype4",
       "desc":"Door Opened",
       "data":"opened",
