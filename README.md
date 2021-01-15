@@ -8,6 +8,22 @@
   ```{"cmd":"opendoor","doorip":"192.168.0.1","acctype":1,"acctype1":1,"acctype2":0,"acctype3":0,"acctype4":0}```
 * mqtt "listusr" with count of returns
   ```{"cmd":"listusr","doorip":"192.168.0.1","skip": "0", "take": "6"}```
+* mqtt "info" doorstatus
+   ```{ "type":"INFO",
+      "src":"acctype4",
+      "desc":"Door Closed",
+      "data":"closed",
+      "time":1610668819,
+      "cmd":"event",
+      "door":"esp-rfid"}```
+      
+ ```{ "type":"INFO",
+      "src":"acctype4",
+      "desc":"Door Opened",
+      "data":"opened",
+      "time":1610668819,
+      "cmd":"event",
+      "door":"esp-rfid"}```
 
 ### MQTT Documentation
 You can integrate ESP-RFID with other systems using MQTT. Read the [additional documentation](./README-ADDON.md) for all the details.
