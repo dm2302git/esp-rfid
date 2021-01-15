@@ -42,6 +42,7 @@ var config = {
         "rpin": 4,
         "rtime": 400,
         "rstatpin": 255,
+        "rstattype": 1,
         "buttonpin": 255
     },
     "general": {
@@ -138,7 +139,7 @@ function handleLock(xnum) {
   } else if (lType === 1) {
     document.getElementById("activateTimeForm"+xstr).style.display = "none";
   } else if (lType === 2) {
-    document.getElementById("activateTimeForm"+xstr).style.display = "none";
+    document.getElementById("activateTimeForm"+xstr).style.display = "block";
   }
 }
 
@@ -167,6 +168,7 @@ function listhardware() {
     document.getElementById("gain").value = config.hardware.rfidgain;
     document.getElementById("gpiorly").value = config.hardware.rpin;
     document.getElementById("statusrlypin").value = config.hardware.rstatpin;
+    document.getElementById("statusrlytype").value = config.hardware.rstattype;
     document.getElementById("numrlys").value = numRelays;
     updateRelayForm();
     updateUserModalForm();
@@ -180,6 +182,7 @@ function listhardware() {
       document.getElementById("typerly"+i).value = config.hardware["relay"+i].rtype;
       document.getElementById("delay"+i).value = config.hardware["relay"+i].rtime;
       document.getElementById("statusrlypin"+i).value = config.hardware["relay"+i].rstatpin;
+      document.getElementById("statusrltype"+i).value = config.hardware["relay"+i].rstattype;
     }  
   }
   handleReader();
@@ -228,6 +231,7 @@ function savehardware() {
   config.hardware.rpin = parseInt(document.getElementById("gpiorly").value);
   config.hardware.rtime = parseInt(document.getElementById("delay").value);
   config.hardware.rstatpin = parseInt(document.getElementById("statusrlypin").value);
+  config.hardware.rstattype = parseInt(document.getElementById("statusrlytype").value);
   config.hardware.wifipin = parseInt(document.getElementById("wifipin").value);
   config.hardware.doorstatpin = parseInt(document.getElementById("doorstatpin").value);
   config.hardware.doorbellpin = parseInt(document.getElementById("doorbellpin").value);
@@ -241,6 +245,7 @@ function savehardware() {
     config.hardware["relay"+i].rtype = document.getElementById("typerly"+i).value;
     config.hardware["relay"+i].rtime = document.getElementById("delay"+i).value;
     config.hardware["relay"+i].rstatpin = document.getElementById("statusrlypin"+i).value;
+    config.hardware["relay"+i].rstattype = document.getElementById("statusrlytype"+i).value;
   }  
   uncommited();
 }
@@ -1656,6 +1661,7 @@ function updateRelayForm(){
         "rpin": 4,
         "rtime": 400,
         "rstatpin": 255,
+        "rstattype": 1,
       };
       config.hardware["relay"+i] = relayJson; 
     }
@@ -1677,7 +1683,8 @@ function updateRelayForm(){
         str=str.replace ("gpiorly","gpiorly" +i);
         str=str.replace ("lockType","lockType" +i);
         str=str.replace ("typerly","typerly" +i);
-        str=str.replace ("statusrlypin","statusrlypin" +i);       
+        str=str.replace ("statusrlypin","statusrlypin" +i);     
+        str=str.replace ("statusrlytype","statusrlytype" +i);    
         str=str.replace ("handleLock(1)","handleLock(" +i+")");
         str=str.replace ("testRelay(1)","testRelay(" +i+")");
         str=str.replace ("activateTimeForm","activateTimeForm"+i);

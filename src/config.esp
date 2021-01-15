@@ -130,6 +130,7 @@ bool ICACHE_FLASH_ATTR loadConfiguration()
 	lockType[0]= hardware["ltype"];
 	relayType[0] = hardware["rtype"];
 	doorstatusPinNew[0] = hardware["rstatpin"];
+	doorStatusType[0] = hardware["rstattype"];
 
 #ifndef OFFICIALBOARD
 	relayPin[0] = hardware["rpin"];
@@ -143,6 +144,7 @@ bool ICACHE_FLASH_ATTR loadConfiguration()
 		relayType[i] = relay["rtype"];
 		relayPin[i] = relay["rpin"];
 		doorstatusPinNew[i] = relay["rstatpin"];
+		doorStatusType[i] = relay["rstattype"];
 		pinMode(relayPin[i], OUTPUT);
 		digitalWrite(relayPin[i], !relayType[i]);
 		mcp.digitalWrite(8,!relayType[i]);

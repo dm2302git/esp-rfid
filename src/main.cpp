@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#define VERSION "1.4.0"
+#define VERSION "1.4.1"
 
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
@@ -121,7 +121,11 @@ uint8_t lastDoorState = 0;
 // door stat specific variable for 6 doors
 uint8_t doorstatusPinNew[MAX_NUM_RELAYS]= {255,255,255,255,255,255};
 uint8_t lastDoorStatusNew[MAX_NUM_RELAYS]= {0,0,0,0,0,0};
+uint8_t doorStatusNew[MAX_NUM_RELAYS] = {0,0,0,0,0,0};
 uint8_t doorStatusFirstRun[MAX_NUM_RELAYS] = {0,0,0,0,0,0};
+int doorStatusType[MAX_NUM_RELAYS];
+bool waitForInvertDoorStatus[MAX_NUM_RELAYS]= {false,false,false,false,false,false};
+
 
 uint8_t openlockpin = 255;
 
@@ -304,7 +308,7 @@ void ICACHE_RAM_ATTR loop()
 
 	if (doorstatusPinNew[0] != 255)
 	{
-		doorStatusNew();
+		doorStatusFunction();
 		delayMicroseconds(500);
 	}
 	else if (doorstatpin != 255)
@@ -328,14 +332,61 @@ void ICACHE_RAM_ATTR loop()
 	// Continuous relay mode
 
 	for (int currentRelay = 0; currentRelay < numRelays ; currentRelay++){
-	  if (lockType[currentRelay] == LOCKTYPE_CONTINUOUS)
+	  	if (lockType[currentRelay] == LOCKTYPE_CONTINUOUS)
 		{
-		if (activateRelay[currentRelay])
-		{
-			// currently OFF, need to switch ON
-			if (digitalRead(relayPin[currentRelay]) == !relayType[currentRelay]) // Todo mit MCP ergänzen für continous
+			if (activateRelay[currentRelay])
 			{
-	#ifdef DEBUG
+				// currently OFF, need to switch ON
+				if (digitalRead(relayPin[currentRelay]) == !relayType[currentRelay]) // Todo mit MCP ergänzen für continous
+				{
+#ifdef DEBUG
+					Serial.print("mili : ");
+					Serial.println(millis());
+					Serial.printf("activating relay %d now\n",currentRelay);
+					Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
+#endif
+					if (relayPin[currentRelay] < MCPPORT_IO)
+					{
+						digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
+					}
+					else
+					{
+						#ifdef DEBUG
+							Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+						#endif	
+						mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO,relayType[currentRelay]);
+					}
+	
+				}
+				else	// currently ON, need to switch OFF
+				{
+#ifdef DEBUG
+					Serial.print("mili : ");
+					Serial.println(millis());
+					Serial.printf("deactivating relay %d now\n",currentRelay);
+					Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
+	#endif
+					if (relayPin[currentRelay] < MCPPORT_IO)
+					{
+						digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
+					}
+					else
+					{
+#ifdef DEBUG
+						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+#endif	
+						mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
+					}
+				}
+				activateRelay[currentRelay] = false;
+			}
+		}
+		// Momentary relay mode
+		else if (lockType[currentRelay] == LOCKTYPE_MOMENTARY)	// momentary relay mode
+		{
+			if (activateRelay[currentRelay])
+			{
+#ifdef DEBUG
 				Serial.print("mili : ");
 				Serial.println(millis());
 				Serial.printf("activating relay %d now\n",currentRelay);
@@ -347,71 +398,25 @@ void ICACHE_RAM_ATTR loop()
 				}
 				else
 				{
-					#ifdef DEBUG
-						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
-					#endif	
-					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO,relayType[currentRelay]);
+#ifdef DEBUG
+					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, relayType[currentRelay]);
 				}
-	
+				previousMillis = millis();
+				activateRelay[currentRelay] = false;
+				deactivateRelay[currentRelay] = true;
 			}
-			else	// currently ON, need to switch OFF
+			else if ((currentMillis - previousMillis >= activateTime[currentRelay]) && (deactivateRelay[currentRelay]))
 			{
 #ifdef DEBUG
+				Serial.println(currentMillis);
+				Serial.println(previousMillis);
+				Serial.println(activateTime[currentRelay]);
+				Serial.println(activateRelay[currentRelay]);
+				Serial.println("deactivate relay after this");
 				Serial.print("mili : ");
 				Serial.println(millis());
-				Serial.printf("deactivating relay %d now\n",currentRelay);
-				Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
-#endif
-					if (relayPin[currentRelay] < MCPPORT_IO)
-				{
-					digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
-				}
-				else
-				{
-					#ifdef DEBUG
-						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
-					#endif	
-					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
-				}
-			}
-			activateRelay[currentRelay] = false;
-		}
-	  }
-	  else if (lockType[currentRelay] == LOCKTYPE_MOMENTARY)	// momentary relay mode
-	  {
-		if (activateRelay[currentRelay])
-		{
-#ifdef DEBUG
-			Serial.print("mili : ");
-			Serial.println(millis());
-			Serial.printf("activating relay %d now\n",currentRelay);
-			Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
-#endif
-			if (relayPin[currentRelay] < MCPPORT_IO)
-			{
-				digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
-			}
-			else
-			{
-				#ifdef DEBUG
-					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
-				#endif	
-				mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, relayType[currentRelay]);
-			}
-			previousMillis = millis();
-			activateRelay[currentRelay] = false;
-			deactivateRelay[currentRelay] = true;
-		}
-		else if ((currentMillis - previousMillis >= activateTime[currentRelay]) && (deactivateRelay[currentRelay]))
-		{
-#ifdef DEBUG
-			Serial.println(currentMillis);
-			Serial.println(previousMillis);
-			Serial.println(activateTime[currentRelay]);
-			Serial.println(activateRelay[currentRelay]);
-			Serial.println("deactivate relay after this");
-			Serial.print("mili : ");
-			Serial.println(millis());
 #endif
 				if (relayPin[currentRelay] < MCPPORT_IO)
 				{
@@ -419,15 +424,77 @@ void ICACHE_RAM_ATTR loop()
 				}
 				else
 				{
-					#ifdef DEBUG
-						Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
-					#endif	
+#ifdef DEBUG
+					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+#endif	
 					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
 				}
-			deactivateRelay[currentRelay] = false;
+				deactivateRelay[currentRelay] = false;
+			}
 		}
-	  }
+		// Doorstatus relay mode
+		else if (lockType[currentRelay] == LOCKTYPE_DOORSTATUS)	// Doorstatus relay mode
+		{
+			if (activateRelay[currentRelay])
+			{
+#ifdef DEBUG
+				Serial.print("mili : ");
+				Serial.println(millis());
+				Serial.printf("activating relay %d now\n",currentRelay);
+				Serial.printf("relayPIN: %d \n",relayPin[currentRelay]);
+#endif
+				if (relayPin[currentRelay] < MCPPORT_IO)
+				{
+					digitalWrite(relayPin[currentRelay], relayType[currentRelay]);
+				}
+				else
+				{
+	#ifdef DEBUG
+					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+	#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, relayType[currentRelay]);
+				}
+				
+				activateRelay[currentRelay] = false;
+				waitForInvertDoorStatus[currentRelay] = true;
+				Serial.println("Wait for DoorStatus Invert");
+				
+			}
+			else if (doorStatusNew[currentRelay] == doorStatusType[currentRelay] && waitForInvertDoorStatus[currentRelay])
+			{
+				previousMillis = millis();
+								
+				waitForInvertDoorStatus[currentRelay] = false;
+				deactivateRelay[currentRelay] = true;
+			}	
+			else if ((currentMillis - previousMillis >= activateTime[currentRelay]) && (deactivateRelay[currentRelay]))
+			{
+	#ifdef DEBUG
+				Serial.println(currentMillis);
+				Serial.println(previousMillis);
+				Serial.println(activateTime[currentRelay]);
+				Serial.println(activateRelay[currentRelay]);
+				Serial.println("deactivate relay after this");
+				Serial.print("mili : ");
+				Serial.println(millis());
+	#endif
+				if (relayPin[currentRelay] < MCPPORT_IO)
+				{
+					digitalWrite(relayPin[currentRelay], !relayType[currentRelay]);
+				}
+				else
+				{
+	#ifdef DEBUG
+					Serial.printf("MCP23017 PORT: %d \n",relayPin[currentRelay]-MCPPORT_IO);
+	#endif	
+					mcp.digitalWrite(relayPin[currentRelay]- MCPPORT_IO, !relayType[currentRelay]);
+				}
+				deactivateRelay[currentRelay] = false;
+			}
+		}
 	}
+
+
 	if (formatreq)
 	{
 #ifdef DEBUG

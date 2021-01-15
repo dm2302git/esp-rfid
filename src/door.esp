@@ -28,13 +28,13 @@ void doorStatus(/* arguments */) {
 
 
 // door status for up to 6 doors
-void doorStatusNew(/* arguments */) {
+void doorStatusFunction() {
 
-      for (size_t i = 0; i < numRelays; i++)
+      for (int i = 0; i < numRelays; i++)
       {
             if (doorstatusPinNew[i] < MCPPORT_IO)
             {
-                  if ((digitalRead(doorstatusPinNew[i]) == HIGH) && (lastDoorStatusNew[i] == 0))
+                  if ((digitalRead(doorstatusPinNew[i]) == doorStatusType[i]) && (lastDoorStatusNew[i] == 0 || doorStatusFirstRun[i] == 0)) // HIGH
                   {
                         String door = String(i+1);
                         writeEvent("INFO", "door", "Door Closed", door);
@@ -42,10 +42,12 @@ void doorStatusNew(/* arguments */) {
                         Serial.print("[ INFO ] Door is Closed:");
                         Serial.println(door);
                   #endif
-                  lastDoorStatusNew[i] = 1;   
+                  lastDoorStatusNew[i] = 1; 
+                  doorStatusNew[i] = !doorStatusType[i];  
+                  doorStatusFirstRun[i] = 1;
                   }
 
-                  if ((digitalRead(doorstatusPinNew[i]) == LOW) && (lastDoorStatusNew[i] == 1))
+                  if ((digitalRead(doorstatusPinNew[i]) == !doorStatusType[i]) && (lastDoorStatusNew[i] == 1 || doorStatusFirstRun[i] == 0)) // LOW
                   {
                         String door = String(i+1);
                         writeEvent("INFO", "door", "Door Open:", door);
@@ -54,6 +56,8 @@ void doorStatusNew(/* arguments */) {
                         Serial.println(door);
                   #endif
                   lastDoorStatusNew[i] = 0;   
+                  doorStatusNew[i] = doorStatusType[i]; 
+                  doorStatusFirstRun[i] = 1;
                   }
             }
             else
@@ -61,7 +65,7 @@ void doorStatusNew(/* arguments */) {
                   String door = String(i+1);
                   String src = "acctype" + door;
 
-                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == LOW) && (lastDoorStatusNew[i] == 1 || doorStatusFirstRun[i] == 0))
+                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == !doorStatusType[i]) && (lastDoorStatusNew[i] == 1 || doorStatusFirstRun[i] == 0)) // LOW
                   {
                         #ifdef DEBUG
                           //    Serial.printf("MCP23017 PORT: %d \n",doorstatusPinNew[i]-MCPPORT_IO);
@@ -76,10 +80,12 @@ void doorStatusNew(/* arguments */) {
                         #endif
 
                         lastDoorStatusNew[i] = 0;  
-                        doorStatusFirstRun[i] = 1; 
+                        doorStatusNew[i] = !doorStatusType[i]; 
+                        doorStatusFirstRun[i] = 1;
+
                   }
 
-                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == HIGH) && (lastDoorStatusNew[i] == 0 || doorStatusFirstRun[i] == 0))
+                  if ((mcp.digitalRead(doorstatusPinNew[i] - MCPPORT_IO) == doorStatusType[i]) && (lastDoorStatusNew[i] == 0 || doorStatusFirstRun[i] == 0)) //HIGH
                   {
                         #ifdef DEBUG
                           //    Serial.printf("MCP23017 PORT: %d \n",doorstatusPinNew[i]-MCPPORT_IO);
@@ -93,6 +99,7 @@ void doorStatusNew(/* arguments */) {
                         #endif
 
                         lastDoorStatusNew[i] = 1; 
+                        doorStatusNew[i] = doorStatusType[i]; 
                         doorStatusFirstRun[i] = 1;   
                   }
                   
