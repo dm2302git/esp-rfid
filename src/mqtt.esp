@@ -141,7 +141,8 @@ uint16_t sendNextUserFile(Dir &dir, String &stopic){
 	std::unique_ptr<char[]> buf(new char[size]);
 	f.readBytes(buf.get(), size);
 
-	DynamicJsonBuffer jsonBuffer;
+	//DynamicJsonBuffer jsonBuffer;
+	StaticJsonBuffer<255> jsonBuffer;
 	JsonObject &json = jsonBuffer.parseObject(buf.get());
 	
 	if (json.success()) {
