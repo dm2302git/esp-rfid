@@ -139,6 +139,29 @@ uint8_t lastDoorbellState = 0;
 #define MCP23017_ADDR 0x20
 MCP23017 mcp = MCP23017(MCP23017_ADDR);
 
+// OLED Display Setup
+// Include the correct display library
+
+// For a connection via I2C using the Arduino Wire include:
+#include <Wire.h>               // Only needed for Arduino 1.6.5 and earlier
+#include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
+// OR #include "SH1106Wire.h"   // legacy: #include "SH1106.h"
+
+
+// Optionally include custom images
+//#include "images.h"
+
+
+// Initialize the OLED display using Arduino Wire:
+SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL  -  SDA and SCL usually populate automatically based on your board's pins_arduino.h
+
+#define DEMO_DURATION 3000
+typedef void (*Demo)(void);
+
+int demoMode = 0;
+int counter = 1;
+String StatusOLED;
+
 // Variables for whole scope
 const char *http_username = "admin";
 char *http_pass = NULL;
@@ -190,6 +213,7 @@ bool mqttEvents 		= false; // Sends events over MQTT disables SPIFFS file loggin
 #include "webserver.esp"
 #include "door.esp"
 #include "doorbell.esp"
+#include "oled.esp"
 
 void ICACHE_FLASH_ATTR setup()
 {
@@ -271,6 +295,13 @@ void ICACHE_FLASH_ATTR setup()
     mcp.writeRegister(MCP23017Register::IPOL_A, 0x00); 	// Reset Port A
     mcp.writeRegister(MCP23017Register::IPOL_B, 0x00);	// Reset Port B
 
+
+
+	// Initialising the UI will init the display too.
+	display.init();
+
+	display.flipScreenVertically();
+	display.setFont(ArialMT_Plain_10);
 }
 
 void ICACHE_RAM_ATTR loop()
@@ -324,10 +355,14 @@ void ICACHE_RAM_ATTR loop()
 		delayMicroseconds(500);
 	}
 
+	oled();
+	delayMicroseconds(500);
+
 	if (currentMillis >= cooldown)
 	{
 		rfidloop();
 	}
+
 
 	// Continuous relay mode
 
@@ -458,6 +493,7 @@ void ICACHE_RAM_ATTR loop()
 				activateRelay[currentRelay] = false;
 				waitForInvertDoorStatus[currentRelay] = true;
 				Serial.println("Wait for DoorStatus Invert");
+				StatusOLED = "Tür: " + activateRelay[currentRelay];
 				
 			}
 			else if (doorStatusNew[currentRelay] == doorStatusType[currentRelay] && waitForInvertDoorStatus[currentRelay])
@@ -466,6 +502,7 @@ void ICACHE_RAM_ATTR loop()
 								
 				waitForInvertDoorStatus[currentRelay] = false;
 				deactivateRelay[currentRelay] = true;
+				StatusOLED = "Tür: zu";
 			}	
 			else if ((currentMillis - previousMillis >= activateTime[currentRelay]) && (deactivateRelay[currentRelay]))
 			{
