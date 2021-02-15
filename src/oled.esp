@@ -1,4 +1,4 @@
-
+/*
 
 void drawFontFaceDemo() {
     // Font Demo1
@@ -8,18 +8,16 @@ void drawFontFaceDemo() {
 
     String text = "SSID: "+ WiFi.SSID();
     display.drawString(0, 10, text);
-
+    
     text = "IP: "+ WiFi.localIP().toString();
-    display.drawString(0, 25, text);
+    display.drawString(0, 22, text);
 
-    text = "Status: "+ StatusOLED;
-    display.drawString(0, 40, text);
-    /*
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(0, 10, "Hello world");
-    display.setFont(ArialMT_Plain_24);
-    display.drawString(0, 26, WiFi.localIP().toString());
-    */
+    text = "Status: "+ StatusOLED1;
+    display.drawString(0, 34, text);
+
+    text = StatusOLED2;
+    display.drawString(0, 46, text);
+
 }
 
 void drawTextFlowDemo() {
@@ -85,13 +83,7 @@ void drawProgressBarDemo() {
   display.drawString(64, 15, String(progress) + "%");
 }
 
-/*
-void drawImageDemo() {
-    // see http://blog.squix.org/2015/05/esp8266-nodemcu-how-to-create-xbm.html
-    // on how to create xbm files
-    display.drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-}
-*/
+
 Demo demos[] = {drawFontFaceDemo};
 int demoLength = (sizeof(demos) / sizeof(Demo));
 long timeSinceLastModeSwitch = 0;
@@ -107,7 +99,7 @@ void oled() {
   // write the buffer to the display
   display.display();
 
-  if (millis() - timeSinceLastModeSwitch > DEMO_DURATION) {
+  if (millis() - timeSinceLastModeSwitch > DISPLAY_PAGE_DURATION) {
     demoMode = (demoMode + 1)  % demoLength;
     timeSinceLastModeSwitch = millis();
   }
@@ -115,7 +107,4 @@ void oled() {
   delay(10);
 }
 
-
-
-
-
+*/

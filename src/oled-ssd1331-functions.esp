@@ -1,0 +1,222 @@
+
+uint16_t tresorWidth = tft.width()/2-4;
+uint16_t tresorHight = tft.width()/4-2;
+uint16_t tresorX1 = 1;
+uint16_t tresorX2 = tft.width()/2+2;
+uint16_t tresorYStart = tft.width()/4;
+
+void boxColoured(int boxNr, String text, uint16_t boxColor, uint16_t textColor) {
+
+  switch (boxNr) {
+	case 0:
+  tft.fillRect(tresorX1+1, tresorYStart*1+1, tresorWidth-2, tresorHight-2, boxColor); // 1
+  tft.setCursor((tresorX1 + 17), (tresorYStart*1)+ 7   );
+  break;
+  case 1:
+  tft.fillRect(tresorX2+1, tresorYStart*1+1, tresorWidth-2, tresorHight-2, boxColor); // 2
+  tft.setCursor((tresorX2 + 17), (tresorYStart*1)+ 7   );
+  break;
+  case 2:
+  tft.fillRect(tresorX1+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, boxColor); // 3
+  tft.setCursor((tresorX1 + 17), (tresorYStart*2)+ 7   );
+  break;
+  case 3:
+  tft.fillRect(tresorX2+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, boxColor); // 4
+  tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+  break;
+  case 4:
+  tft.fillRect(tresorX1+1, tresorYStart*3+1, tresorWidth-2, tresorHight-2, boxColor); // 5
+  tft.setCursor((tresorX1 + 17), (tresorYStart*3)+ 7   );
+  break;
+  case 5:
+  tft.fillRect(tresorX2+1, tresorYStart*3+1, tresorWidth-2, tresorHight-2, boxColor); // 6
+  tft.setCursor((tresorX2 + 17), (tresorYStart*3)+ 7   );
+  break;
+  }
+
+  tft.setTextColor(textColor);
+  tft.setTextSize(2);
+  tft.println(text);
+}
+
+void boxText(int boxNr, String text, uint16_t textColor) {
+
+  switch (boxNr) {
+	case 0:
+  tft.setCursor((tresorX1 + 17), (tresorYStart*1)+ 7   );
+  break;
+  case 1:
+  tft.setCursor((tresorX2 + 17), (tresorYStart*1)+ 7   );
+  break;
+  case 2:
+ tft.setCursor((tresorX1 + 17), (tresorYStart*2)+ 7   );
+  break;
+  case 3:
+  tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+  break;
+  case 4:
+  tft.setCursor((tresorX1 + 17), (tresorYStart*3)+ 7   );
+  break;
+  case 5:
+  tft.setCursor((tresorX2 + 17), (tresorYStart*3)+ 7   );
+  break;
+  }
+
+  tft.setTextColor(textColor);
+  tft.setTextSize(2);
+  tft.println(text);
+}
+
+
+
+void mainpage(){
+  tft.drawRect(0, 0, tft.width(), tft.height(), BLACK);
+
+  // 1. Zeile
+  tft.setTextColor(RED);  
+  tft.setTextSize(0.5);
+  tft.setCursor(0, 5);
+  tft.println("12.01.2021  Wifi:");
+
+  // Publish Wifi Strength with hearthbeat + ToDo split in function
+	int dBm = WiFi.RSSI();
+	int percentage;
+	if (dBm <= -100) percentage = 0;
+	else if (dBm >= -50) percentage = 100;
+	else percentage = 2 * (dBm + 100);
+   tft.setTextColor(RED); 
+  tft.setCursor(105, 5);
+  tft.println(percentage);
+
+    tft.setCursor(120, 5);
+  tft.println("%");
+
+  // 2. Zeile
+  tft.setCursor(0, 15);
+  tft.println(WiFi.localIP().toString());
+
+ 
+// Trennlinie
+  tft.drawFastHLine(0, 25, tft.width()-1, RED);
+/*
+for (uint16_t x=0; x < tft.height()-1; x+=6) {
+   tft.drawRect((tft.width()-1)/2 -x/2, (tft.height()-1)/2 -x/2 , x, x, WHITE);
+ }
+ */
+
+
+// 6 White boxes
+// Box0     Box1
+// Box2     Box3
+// Box4     Box5
+//                 X               Y                W                  H            color
+    tft.drawRect(tresorX1, tresorYStart*1, tresorWidth, tresorHight, WHITE);  // 1
+    tft.drawRect(tresorX2, tresorYStart*1, tresorWidth, tresorHight, WHITE);  // 2
+
+    tft.drawRect(tresorX1, tresorYStart*2, tresorWidth, tresorHight, WHITE);  // 3
+    tft.drawRect(tresorX2, tresorYStart*2, tresorWidth, tresorHight, WHITE);  // 4
+
+    tft.drawRect(tresorX1 ,tresorYStart*3, tresorWidth, tresorHight, WHITE);  // 5
+    tft.drawRect(tresorX2, tresorYStart*3, tresorWidth, tresorHight, WHITE);  // 6
+
+
+
+for (int currentRelay = 0; currentRelay < numRelays ; currentRelay++){
+  if  (activateRelayOutput[currentRelay]==true) {
+
+    if (currentMillis - previousMillisDisplay >= intervalBlink) {
+          // save the last time you blinked the LED
+          previousMillisDisplay = currentMillis;
+          if (TonDisplayState) {
+            /*
+              tft.fillRect(tresorX2+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, GREEN); // 4
+              
+              tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+              tft.setTextColor(BLACK);
+              tft.setTextSize(2);
+              tft.println("34");
+              */
+         //   boxText(currentRelay,"31",GREEN);
+              boxColoured(currentRelay,relayName[currentRelay],GREEN,BLACK);
+          }
+          else
+          {
+            /*
+              tft.fillRect(tresorX2+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, BLACK);
+
+              tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+              tft.setTextColor(WHITE);
+              tft.setTextSize(2);
+              tft.println("34");
+              */
+              boxColoured(currentRelay,relayName[currentRelay],BLACK,WHITE);
+            //  boxText(0,"31",BLUE);
+          }
+          TonDisplayState = !TonDisplayState;    
+    }
+  }
+  else
+    {
+      /*
+        tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+        tft.setTextColor(YELLOW);
+        tft.setTextSize(2);
+        tft.println("34");
+        */
+      boxText(currentRelay,relayName[currentRelay],YELLOW);
+    }
+
+}
+     
+
+
+/*
+    tft.setCursor((tresorX1 + 17), (tresorYStart*1)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("31");
+
+    tft.setCursor((tresorX2 + 17), (tresorYStart*1)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("32");
+
+    tft.setCursor((tresorX1 + 17), (tresorYStart*2)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("33");
+
+    tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("34");
+
+    tft.setCursor((tresorX1 + 17), (tresorYStart*3)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("35");
+
+    tft.setCursor((tresorX2 + 17), (tresorYStart*3)+ 7   );
+    tft.setTextColor(YELLOW);
+    tft.setTextSize(2);
+    tft.println("36");
+ */
+
+   
+     /*
+     delay(1000);
+     tft.fillRect(tresorX1 ,tresorYStart*3, tresorWidth, tresorHight, RED);
+     */
+     
+}
+
+void lcdTestPattern(void)
+{
+  static const uint16_t PROGMEM colors[] =
+    { RED, YELLOW, GREEN, CYAN, BLUE, MAGENTA, BLACK, WHITE };
+
+  for(uint8_t c=0; c<8; c++) {
+    tft.fillRect(0, tft.height() * c / 8, tft.width(), tft.height() / 8,
+      pgm_read_word(&colors[c]));
+  }
+}
