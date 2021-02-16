@@ -43,6 +43,7 @@ var config = {
         "rtime": 400,
         "rstatpin": 255,
         "rstattype": 1,
+        "rname": "01",
         "buttonpin": 255
     },
     "general": {
@@ -169,6 +170,7 @@ function listhardware() {
     document.getElementById("gpiorly").value = config.hardware.rpin;
     document.getElementById("statusrlypin").value = config.hardware.rstatpin;
     document.getElementById("statusrlytype").value = config.hardware.rstattype;
+    document.getElementById("relayname").value = config.hardware.rname;
     document.getElementById("numrlys").value = numRelays;
     updateRelayForm();
     updateUserModalForm();
@@ -183,6 +185,7 @@ function listhardware() {
       document.getElementById("delay"+i).value = config.hardware["relay"+i].rtime;
       document.getElementById("statusrlypin"+i).value = config.hardware["relay"+i].rstatpin;
       document.getElementById("statusrltype"+i).value = config.hardware["relay"+i].rstattype;
+      document.getElementById("relayname"+i).value = config.hardware["relay"+i].rname;
     }  
   }
   handleReader();
@@ -232,6 +235,7 @@ function savehardware() {
   config.hardware.rtime = parseInt(document.getElementById("delay").value);
   config.hardware.rstatpin = parseInt(document.getElementById("statusrlypin").value);
   config.hardware.rstattype = parseInt(document.getElementById("statusrlytype").value);
+  config.hardware.rname = document.getElementById("relayname").value;
   config.hardware.wifipin = parseInt(document.getElementById("wifipin").value);
   config.hardware.doorstatpin = parseInt(document.getElementById("doorstatpin").value);
   config.hardware.doorbellpin = parseInt(document.getElementById("doorbellpin").value);
@@ -240,12 +244,13 @@ function savehardware() {
 
   for (var i = 2; i<=numRelays; i++)
   {
-    config.hardware["relay"+i].rpin = document.getElementById("gpiorly"+i).value;
-    config.hardware["relay"+i].ltype = document.getElementById("lockType"+i).value;
-    config.hardware["relay"+i].rtype = document.getElementById("typerly"+i).value;
-    config.hardware["relay"+i].rtime = document.getElementById("delay"+i).value;
-    config.hardware["relay"+i].rstatpin = document.getElementById("statusrlypin"+i).value;
-    config.hardware["relay"+i].rstattype = document.getElementById("statusrlytype"+i).value;
+    config.hardware["relay"+i].rpin = parseInt(document.getElementById("gpiorly"+i).value);
+    config.hardware["relay"+i].ltype = parseInt(document.getElementById("lockType"+i).value);
+    config.hardware["relay"+i].rtype = parseInt(document.getElementById("typerly"+i).value);
+    config.hardware["relay"+i].rtime = parseInt(document.getElementById("delay"+i).value);
+    config.hardware["relay"+i].rstatpin = parseInt(document.getElementById("statusrlypin"+i).value);
+    config.hardware["relay"+i].rstattype = parseInt(document.getElementById("statusrlytype"+i).value);
+    config.hardware["relay"+i].rname = document.getElementById("relayname"+i).value;
   }  
   uncommited();
 }
@@ -1662,6 +1667,7 @@ function updateRelayForm(){
         "rtime": 400,
         "rstatpin": 255,
         "rstattype": 1,
+        "rname": "01",
       };
       config.hardware["relay"+i] = relayJson; 
     }
@@ -1685,6 +1691,7 @@ function updateRelayForm(){
         str=str.replace ("typerly","typerly" +i);
         str=str.replace ("statusrlypin","statusrlypin" +i);     
         str=str.replace ("statusrlytype","statusrlytype" +i);    
+        str=str.replace ("relayname","relayname" +i);    
         str=str.replace ("handleLock(1)","handleLock(" +i+")");
         str=str.replace ("testRelay(1)","testRelay(" +i+")");
         str=str.replace ("activateTimeForm","activateTimeForm"+i);

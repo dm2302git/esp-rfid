@@ -82,6 +82,7 @@ void doorStatusFunction() {
                         lastDoorStatusNew[i] = 0;  
                         doorStatusNew[i] = !doorStatusType[i]; 
                         doorStatusFirstRun[i] = 1;
+                         StatusOLED2 = "[ INFO ] Door is Closed:" + door;
 
                   }
 
@@ -101,6 +102,7 @@ void doorStatusFunction() {
                         lastDoorStatusNew[i] = 1; 
                         doorStatusNew[i] = doorStatusType[i]; 
                         doorStatusFirstRun[i] = 1;   
+                        StatusOLED2 = "[ INFO ] Door is Open:" + door;
                   }
                   
             }
