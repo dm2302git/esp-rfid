@@ -1,9 +1,11 @@
-# New feature in special Release 1.4.0
+# New feature in special Release 1.4.2
 * WIFIstrength in 0 - 100% on mqtt heartbeat Publish
 * Support of up to 6 relays
 * Support of MCP23017 IC for more IO's ( 8xInput and 8x Output)
+* Every Relay has an short name
 * Every Relay has a DoorStatus conected. Parameter Active Low/ Active High
 * LockType for DoorStatus = Set on command and Reset on Status change from DoorStatus pin after Delay 
+* Supports OLED 1331 Display Relay Status
 * mqtt "OpenDoor" for up to 6 Relays acctypes 
   ```{"cmd":"opendoor","doorip":"192.168.0.1","acctype":1,"acctype1":1,"acctype2":0,"acctype3":0,"acctype4":0}```
 * mqtt "listusr" with count of returns
