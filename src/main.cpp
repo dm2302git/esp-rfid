@@ -226,7 +226,7 @@ bool mqttEvents 		= false; // Sends events over MQTT disables SPIFFS file loggin
 #define MOSI_PIN 14 // D5//SDA //D7
 #define DC_PIN   12 // D6
 #define CS_PIN   15 // D8//D8
-#define RST_PIN  -1 // D6
+#define RST_PIN  13//-1 // D6
 
 // Color definitions
 #define	BLACK           0x0000
@@ -244,8 +244,8 @@ bool mqttEvents 		= false; // Sends events over MQTT disables SPIFFS file loggin
 #include <Adafruit_I2CDevice.h>
 
 // Option 1: use any pins but a little slower
-Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN);  
-
+// SSD1327
+Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN);
 
 const long intervalBlink = 1000;           // interval at which to blink (milliseconds)
 bool TonDisplayState = false;

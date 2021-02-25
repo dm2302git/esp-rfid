@@ -132,6 +132,14 @@ void onMqttPublish(uint16_t packetId) {
 	writeEvent("INFO", "mqtt", "MQTT publish acknowledged", String(packetId));
 }
 
+void PublishDeviceState(JsonObject &json){
+	String stopic (mqttTopic);
+	stopic = stopic + "/devicestate";
+	String mqttBuffer;
+	json.printTo(mqttBuffer);
+	mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); 
+}
+
 void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int take=3) {
 	String stopic (mqttTopic);
 	if (todo == 0)  // Userlist to add to DB
@@ -143,10 +151,8 @@ void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int tak
 	#ifdef DEBUG
 		Serial.println("[ INFO ] getUserList");
 	#endif
-
 	unsigned int i=0;
 	unsigned int lastIndex=skip+take-1; // last index for 1 item is 0
-
 	while (i<=lastIndex) {
 		if(!dir.next()){ // check if the next file exists
 			// if not leave early
@@ -155,7 +161,6 @@ void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int tak
 			json["cmd"]="listUserState";
 			json["done"]=true;
 			json["lastIndex"]=i;
-
 			String mqttBuffer;
 			json.printTo(mqttBuffer);
 			mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); 
@@ -171,7 +176,6 @@ void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int tak
 			DynamicJsonBuffer jsonBuffer;
 			JsonObject &json = jsonBuffer.parseObject(buf.get());
 			if (json.success()) {
-
 				if (mqttClient.connected()) {
 					String mqttBuffer;
 					json.printTo(mqttBuffer);
@@ -197,6 +201,7 @@ void ICACHE_FLASH_ATTR getUserList(int todo,unsigned int skip=0,unsigned int tak
 	mqttClient.publish(stopic.c_str(), 0, false, mqttBuffer.c_str()); 
 }
 
+
 void DeleteAllUserFiles(){
 	Dir dir = SPIFFS.openDir("/P/");
 	while (dir.next()) {
@@ -204,6 +209,16 @@ void DeleteAllUserFiles(){
 			uid.remove(0, 3);
 			SPIFFS.remove(dir.fileName());
 	}
+	// after delete is finished send a response
+
+
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject &json = jsonBuffer.createObject();
+	json["cmd"]="deleteAllUsersState";
+	json["deviceName"]=deviceHostname;
+
+	PublishDeviceState(json);	
+
 }
 
 void DeleteUserID(const char *uid){
@@ -354,6 +369,15 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 		#endif
 		const char *uid = root["uid"];
 		DeleteUserID(uid);
+		Serial.println(uid);
+
+		DynamicJsonBuffer jsonBuffer;
+		JsonObject &json = jsonBuffer.createObject();
+		json["cmd"]="deleteUserState";
+		json["deviceName"]=deviceHostname;
+		json["deletedUID"]=root["uid"];
+		PublishDeviceState(json);
+
 		return;
 	}
 
@@ -372,16 +396,17 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 		// Check if we created the file
 		if (f){
 			root.printTo(f);
+
+			DynamicJsonBuffer jsonBuffer;
+			JsonObject &json = jsonBuffer.createObject();
+			json["cmd"]="dbUserAdded";
+			json["deviceName"]=deviceHostname;
+			json["userUID"]=*uid;
+			PublishDeviceState(json);
 		}
 		f.close();
 		return;
 	}
-
-	#ifdef DEBUG
-		Serial.println("[ INFO ] No such command!");
-	#endif	
-
-	return;
 }
 
 

@@ -67,6 +67,42 @@ void boxText(int boxNr, String text, uint16_t textColor) {
   tft.println(text);
 }
 
+void drawLock(int state = 0, uint16_t startX = 0, uint16_t startY = 0, float_t size = 0.5, uint16_t color = WHITE) {
+  /*
+   0 1 2 3 4 5 6 7 8 9 
+           X  X
+0       X        X
+1     X            X
+2    X               X
+3   X                 X
+4   X X X X X X X X X X 
+5   X X X X X X X X X X
+6   X X X X X X X X X X
+7   X X X X X X X X X X
+8   X X X X X X X X X X
+9   X X X X X X X X X X 
+
+ tft.fillRoundRect(25, 10, 78, 60, 8, WHITE);
+  tft.fillTriangle(42, 20, 42, 60, 90, 40, RED);
+void drawCircle(uint16_t x0, uint16_t y0, uint16_t r, uint16_t color);
+tft.fillRect()
+*/
+if (state == 0) {
+tft.drawCircle(startX+(5*size)-1,startY+(10*size)+0,(5*size),color);
+tft.drawCircle(startX+(5*size)-1,startY+(10*size)+1,(5*size)-0.5,color);
+
+tft.fillRect(startX-1, startY+(10*size)+2, 10*size+1, 10*size, color);
+}
+else if (state == 1)
+{
+  /* code */
+}
+tft.drawCircle(startX+(5*size)-1+ 10*size-2,startY+(10*size)+0,(5*size),color);
+tft.drawCircle(startX+(5*size)-1+ 10*size-2,startY+(10*size)+1,(5*size)-0.5,color);
+
+tft.fillRect(startX-1, startY+(10*size)+2, 10*size+1, 10*size, color);
+tft.fillRect(startX+ 10*size, startY+(10*size)+2, 10*size+1, 10*size, BLACK);
+}
 
 
 void mainpage(){
@@ -128,27 +164,12 @@ for (int currentRelay = 0; currentRelay < numRelays ; currentRelay++){
           // save the last time you blinked the LED
           previousMillisDisplay = currentMillis;
           if (TonDisplayState) {
-            /*
-              tft.fillRect(tresorX2+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, GREEN); // 4
-              
-              tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
-              tft.setTextColor(BLACK);
-              tft.setTextSize(2);
-              tft.println("34");
-              */
+           
          //   boxText(currentRelay,"31",GREEN);
               boxColoured(currentRelay,relayName[currentRelay],GREEN,BLACK);
           }
           else
           {
-            /*
-              tft.fillRect(tresorX2+1, tresorYStart*2+1, tresorWidth-2, tresorHight-2, BLACK);
-
-              tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
-              tft.setTextColor(WHITE);
-              tft.setTextSize(2);
-              tft.println("34");
-              */
               boxColoured(currentRelay,relayName[currentRelay],BLACK,WHITE);
             //  boxText(0,"31",BLUE);
           }
@@ -157,13 +178,8 @@ for (int currentRelay = 0; currentRelay < numRelays ; currentRelay++){
   }
   else
     {
-      /*
-        tft.setCursor((tresorX2 + 17), (tresorYStart*2)+ 7   );
-        tft.setTextColor(YELLOW);
-        tft.setTextSize(2);
-        tft.println("34");
-        */
       boxText(currentRelay,relayName[currentRelay],YELLOW);
+      drawLock(1,5,30,1.0,GREEN);
     }
 
 }
